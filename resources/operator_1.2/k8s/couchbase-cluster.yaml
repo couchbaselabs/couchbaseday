@@ -4,7 +4,7 @@ metadata:
   name: cb-example
 spec:
   baseImage: couchbase/server
-  version: enterprise-6.0.1
+  version: enterprise-6.5.0
   authSecret: cb-example-auth
   exposeAdminConsole: true
   adminConsoleServices:
