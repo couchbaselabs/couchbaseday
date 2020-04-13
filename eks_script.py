@@ -135,11 +135,17 @@ def setup_rsa(ns):
 
 	execute_command("sh ./resources/easy-rsa/easyrsa3/easyrsa init-pki")
 
-	print("************************************************************")
-	print("	Note:  Creating Certificate Authority")
-	print("	       Enter any value: Example = Couchbase CA")
-	print("************************************************************")
-	execute_command("sh ./resources/easy-rsa/easyrsa3/easyrsa build-ca nopass")
+	#print("************************************************************")
+	#print("	Note:  Creating Certificate Authority")
+	#print("	       Enter any value: Example = Couchbase CA")
+	#print("************************************************************")
+
+	if sys.platform.startswith('freebsd') or sys.platform.startswith('linux') or sys.platform.startswith('aix') or sys.platform.startswith('darwin'):
+		execute_command("sh ./resources/easy-rsa/easyrsa3/easyrsa build-ca nopass < ./resources/ca_inputs.txt")
+	elif sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
+		execute_command("powershell.exe -Command (Get-Content ./resources/ca_inputs.txt) | sh ./resources/easy-rsa/easyrsa3/easyrsa build-ca nopass")
+	else:
+		execute_command("sh ./resources/easy-rsa/easyrsa3/easyrsa build-ca nopass")
 
 	execute_command("sh ./resources/easy-rsa/easyrsa3/easyrsa --subject-alt-name=\"DNS:*.cb-example.{0}.svc,DNS:*.{0}.svc\" build-server-full couchbase-server nopass".format(ns))
 
