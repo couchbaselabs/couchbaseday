@@ -13,3 +13,5 @@ resources/operator_1.2/k8s/admission.yaml
 resources/operator_1.2/k8s/admission.yaml.bkup
 resources/operator_1.2/k8s/operator-role-binding.yaml
 resources/operator_1.2/k8s/operator-role-binding.yaml.bkup
+venv/
+.idea/

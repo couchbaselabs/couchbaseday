@@ -16,11 +16,3 @@ spec:
       - name: couchmart
         image: cbck/couchmart:python2
         imagePullPolicy: Always
-        volumeMounts:
-        - mountPath: /var/run/secrets/couchbase.com/couchbase-operator-admission
-          name: couchbase-operator-admission
-          readOnly: true
-      volumes:
-      - name: couchbase-operator-admission
-        secret:
-          secretName: couchbase-operator-admission
