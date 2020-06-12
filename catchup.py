@@ -160,7 +160,7 @@ def stop_portforward():
         cmd = "ps -ef | grep kubectl | grep -v grep | tr -s ' ' | cut -d' ' -f3"
         stopcmd = "kill -9 {0}"
     elif sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
-        cmd = "Get-Process | grep kubectl | tr -s ' '| cut -d' ' -f7"
+        cmd = "ps | grep kubectl | tr -s ' '| cut -d' ' -f7"
         stopcmd = "Stop-Process -Id {0}"
     else:
         cmd = "ps -ef | grep kubectl | grep -v grep | tr -s ' ' | cut -d' ' -f3"
