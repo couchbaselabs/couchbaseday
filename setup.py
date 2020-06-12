@@ -26,7 +26,7 @@ def check_ns(delete):
         ns = raw_input("Enter a namespace : ")
     else:
         ns = input("Enter a namespace : ")
-    print("Checking ns[{}]".format(ns))
+    print("Checking ns[{0}]".format(ns))
 
     detected = False
     p = subprocess.Popen("kubectl get ns", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -43,6 +43,9 @@ def check_ns(delete):
         execute_command("kubectl delete clusterrolebinding couchbase-operator-admission-{0}".format(ns))
         execute_command("kubectl delete mutatingwebhookconfiguration couchbase-operator-admission-{0}".format(ns))
         execute_command("kubectl delete validatingwebhookconfiguration couchbase-operator-admission-{0}".format(ns))
+    elif detected and not delete:
+        print("Namespace[{0}] detected. Please choose another namespace".format(ns))
+        return ""
 
     return ns
 
@@ -283,22 +286,16 @@ if __name__ == "__main__":
     waittime=30
     waitattempts=10
 
-    selection = int(display_menu())
-    if selection == 0:
+    selection = 1
+    ns_flag = True
+    while ns_flag:
         ns = check_ns(False)
-        stop_portforward()
-        start_portforward()
-        sys.exit(0)
-
-    print(divider)
-    print("Stopping any existing port-forward commands. These will be recreated as part of the catchup process...")
-    print(divider)
-    stop_portforward()
-    ns = check_ns(True)
+        if ns is not None and len(ns) > 1:
+            ns_flag = False
 
     if selection >= 1:
         print(divider)
-        print("(Re)building your namespace. This may take a few seconds...")
+        print("Building your namespace. This may take a few seconds...")
         execute_command("python eks_script.py -n {}".format(ns))
 
         # Couchbase Cluster

@@ -1,0 +1,36 @@
+{
+  "appcode": "function OnUpdate(doc, meta) {\n  var sourceDocumentId = meta.id;\n  if(sourceDocumentId.startsWith(\"Order\")) {\n    var tgtDocId = trimDocumentId(sourceDocumentId);\n    var orders = consolidateOrders(tgtDocId, doc);\n    tgt[tgtDocId] = orders;\n  }\n}\n\nfunction trimDocumentId(sourceDocumentId) {\n  var return_val = 0;\n  if (sourceDocumentId) {\n    var parts = sourceDocumentId.split('::');\n    return_val = (parts[0]) + '::' + (parts[1]);\n    return return_val;\n  }\n}\n\nfunction consolidateOrders(tgtDocId, doc) {\n  var fulfillmentOrder;\n  var results = SELECT * FROM fulfillment WHERE meta().id = $tgtDocId;\n  var count = 0\n  for (var raw_order of results) {\n    count++\n    var order = raw_order.fulfillment\n    order[\"ts\"]=new Date().getTime();\n    var newlyAddedOrders = [];\n    var newlyAddedArrayIndex=0;\n    for (var j = 0; j < doc[\"order\"].length; j++) {\n      var quantityUpdated = false;\n      var productInNewOrder = doc[\"order\"][j];\n      for (var i = 0; i < order[\"orders\"].length; i++) {\n        var productFromSummaryOrder = order[\"orders\"][i].item;\n        if (productInNewOrder == productFromSummaryOrder) {\n          order[\"orders\"][i].quantity++;\n          quantityUpdated = true;\n          break;\n        }\n      }\n      if (!quantityUpdated) {\n          newlyAddedOrders[newlyAddedArrayIndex] = {\n          item: productInNewOrder,\n          quantity: 1\n        }\n        newlyAddedArrayIndex++;                   \n      }\n    }\n    if(newlyAddedOrders.length!=0) {\n      Array.prototype.push.apply(order.orders, newlyAddedOrders);\n    }\n    results.close();\n    fulfillmentOrder = order;\n  }    \n  \n  //No results create new record\n  if (count < 1) {\n      log(\"New Record Detected\")\n      var orderSummary = [];\n      for (var i = 0; i < doc[\"order\"].length; i++) {\n          orderSummary[i] = {\n          item: doc[\"order\"][i],\n          quantity: 1\n        };\n      }\n      fulfillmentOrder = {\n          name: doc[\"name\"],\n          ts: new Date().getTime(),\n          type: 'fulfillment',\n          orders: orderSummary      \n        };\n    }\n  \n  return fulfillmentOrder;\n}\n\nfunction OnDelete(meta) {\n}\n",
+  "depcfg": {
+    "buckets": [
+      {
+        "alias": "tgt",
+        "bucket_name": "fulfillment",
+        "access": "rw"
+      }
+    ],
+    "curl": [],
+    "metadata_bucket": "metadata",
+    "source_bucket": "couchmart"
+  },
+  "version": "evt-6.5.0-4960-ee",
+  "handleruuid": 0,
+  "id": 0,
+  "function_instance_id": "",
+  "appname": "manage_orders",
+  "settings": {
+    "dcp_stream_boundary": "everything",
+    "deadline_timeout": 62,
+    "deployment_status": false,
+    "description": "",
+    "execution_timeout": 60,
+    "language_compatibility": "6.5.0",
+    "log_level": "INFO",
+    "n1ql_consistency": "none",
+    "processing_status": false,
+    "user_prefix": "eventing",
+    "worker_count": 3
+  },
+  "using_timer": false,
+  "src_mutation": false
+}
+
