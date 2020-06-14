@@ -241,6 +241,13 @@ def update_couchmart(ns, webfile):
             "kubectl exec -i {0} -n {1} -- bash -c \"cd /scripts && ./restart_couchmart.sh\"".format(cmpod, ns))
 
 
+def print_close():
+    print("")
+    print(divider)
+    print("You are all caught up.  Please leave this window open")
+    print(divider)
+
+
 def display_menu():
     print("")
     print("")
@@ -288,6 +295,7 @@ if __name__ == "__main__":
         ns = check_ns(False)
         stop_portforward()
         start_portforward()
+        print_close()
         sys.exit(0)
 
     print(divider)
@@ -458,8 +466,4 @@ if __name__ == "__main__":
 
     # Shared commands
     start_portforward()
-
-    print("")
-    print(divider)
-    print("You are all caught up.  Please leave this window open")
-    print(divider)
+    print_close()
