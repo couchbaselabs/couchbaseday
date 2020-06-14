@@ -161,7 +161,7 @@ def stop_portforward():
         stopcmd = "kill -9 {0}"
     elif sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
         cmd = "powershell Get-Process | grep kubectl | grep -v grep | tr -s ' '| cut -d' ' -f7"
-        stopcmd = "kill {0}"
+        stopcmd = "powershell Stop-Process {0}"
     else:
         cmd = "ps -ef | grep kubectl | grep -v grep | tr -s ' ' | cut -d' ' -f3"
         stopcmd = "kill -9 {0}"
@@ -455,13 +455,16 @@ if __name__ == "__main__":
                         eventingpod, ns, cmd.format("http://localhost:8096/api/v1/functions/manage_orders")
                     ))
 
-            deployment_statement = "\'{\"deployment_status\":true,\"processing_status\":true}\'"
+            execute_command(
+                "kubectl cp resources/solutions/exercise_3/deploy_eventing.json {0}/{1}:/deploy_eventing.json".format(
+                    ns, eventingpod
+                ))
             cmd = "curl -u Administrator:password -XPOST {0}" \
                   " -H \"cache-control: no-cache\"" \
                   " -H \"content-type: application/json\"" \
-                  " -d {1}"
+                  " -d @/deploy_eventing.json"
             execute_command("kubectl exec -it {0} -n {1} -- {2}".format(
-                eventingpod, ns, cmd.format("http://localhost:8096/api/v1/functions/manage_orders/settings", deployment_statement)
+                eventingpod, ns, cmd.format("http://localhost:8096/api/v1/functions/manage_orders/settings")
             ))
 
     # Shared commands
