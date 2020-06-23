@@ -416,23 +416,15 @@ if __name__ == "__main__":
         #Analytics
         cbaspod = get_pod_by_svc("cb-example-0", ns, "cbas").split(".")[0]
         if cbaspod != "undefined":
-            query = "\'{\"statement\" : \"CREATE DATASET products ON couchmart WHERE `type` = \\\"product\\\";\"}\'"
-            execute_command("kubectl exec -i {0} -n {1} -- curl -u Administrator:password"
-                            " -H \"Content-Type: application/json\""
-                            " -d {2}"
-                            " http://localhost:8095/analytics/service".format(cbaspod, ns, query))
+            execute_command(
+                "kubectl cp resources/solutions/exercise_3/analytic_queries.txt {0}/{1}:/analytic_queries.txt".format(
+                    ns, cbaspod
+                ))
 
-            query = "\'{\"statement\" : \"CREATE DATASET orders   ON couchmart WHERE `type` = \\\"order\\\";\"}\'"
-            execute_command("kubectl exec -i {0} -n {1} -- curl -u Administrator:password"
-                            " -H \"Content-Type: application/json\""
-                            " -d {2}"
-                            " http://localhost:8095/analytics/service".format(cbaspod, ns, query))
-
-            query = "\'{\"statement\" : \"CONNECT LINK Local;\"}\'"
-            execute_command("kubectl exec -i {0} -n {1} -- curl -u Administrator:password"
-                            " -H \"Content-Type: application/json\""
-                            " -d {2}"
-                            " http://localhost:8095/analytics/service".format(cbaspod, ns, query))
+            execute_command(
+                "kubectl exec -it {0} -n {1} -- bash -c \"cbq -e http://localhost:8095 -u Administrator -p password -f=\"/analytic_queries.txt\"\"".format(
+                    cbaspod, ns
+                ))
 
         #Eventing
         if querypod != "undefined":

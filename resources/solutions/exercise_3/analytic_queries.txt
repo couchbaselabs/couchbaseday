@@ -1,0 +1,3 @@
+CREATE DATASET products ON couchmart WHERE `type` = "product";
+CREATE DATASET orders ON couchmart WHERE `type` = "order";
+CONNECT LINK Local;
