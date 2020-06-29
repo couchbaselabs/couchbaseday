@@ -310,7 +310,7 @@ if __name__ == "__main__":
         execute_command("python eks_script.py -n {}".format(ns))
 
         # Couchbase Cluster
-        execute_command("kubectl create -f resources/couchbase-cluster.yaml --save-config -n {}".format(ns))
+        execute_command("kubectl create -f resources/solutions/exercise_1/couchbase-cluster.yaml --save-config -n {}".format(ns))
         print("Waiting for cluster to be ready")
         ready = wait_till_ready("cb-example-0", 3, ns, waittime, waitattempts)
         if not ready:
