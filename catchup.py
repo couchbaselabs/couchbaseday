@@ -408,7 +408,7 @@ if __name__ == "__main__":
             #    kvpod, ns
             #))
             execute_command(
-                "kubectl cp resources/resources/couchmart_1M_formatted_keys.json.gz {0}/{1}:/tmp/couchmart_1M_formatted_keys.json.gz".format(
+                "kubectl cp resources/couchmart_1M_formatted_keys.json.gz {0}/{1}:/tmp/couchmart_1M_formatted_keys.json.gz".format(
                     ns, kvpod
                 ))
 
