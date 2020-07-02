@@ -176,7 +176,8 @@ def start_portforward():
             'aix') or sys.platform.startswith('darwin'):
         cmd = "nohup kubectl port-forward {0} {2}:{3} -n {1} > /dev/null 2>&1 &"
     elif sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
-        cmd = "kubectl port-forward {0} {2}:{3} -n {1}"
+        cmd = "invoke-expression 'cmd /c start /min powershell -Command { kubectl port-forward {0} {2}:{3} -n {1} }'"
+        #cmd = "kubectl port-forward {0} {2}:{3} -n {1}"
     else:
         cmd = "nohup kubectl port-forward {0} {2}:{3} -n {1} > /dev/null 2>&1 &"
 
