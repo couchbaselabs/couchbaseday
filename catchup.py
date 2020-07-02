@@ -176,7 +176,7 @@ def start_portforward():
             'aix') or sys.platform.startswith('darwin'):
         cmd = "nohup kubectl port-forward {0} {2}:{3} -n {1} > /dev/null 2>&1 &"
     elif sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
-        cmd = "invoke-expression 'cmd /c start /min powershell -Command { kubectl port-forward {0} {2}:{3} -n {1} }'"
+        cmd = "powershell \"invoke-expression 'cmd /c start /min powershell -Command {4} kubectl port-forward {0} {2}:{3} -n {1} {5}'\""
         #cmd = "kubectl port-forward {0} {2}:{3} -n {1}"
     else:
         cmd = "nohup kubectl port-forward {0} {2}:{3} -n {1} > /dev/null 2>&1 &"
@@ -184,19 +184,19 @@ def start_portforward():
     pod = get_pod_by_svc("cb-example-0", ns, "kv").split(".")[0]
     if pod != "undefined":
         execute_background_command(cmd.format(
-            pod, ns, "8091", "8091"
+            pod, ns, "8091", "8091", "{", "}"
         ))
 
     pod = get_pod_by_svc("cb-example-xdcr", ns, "kv").split(".")[0]
     if pod != "undefined":
         execute_background_command(cmd.format(
-            pod, ns, "8092", "8091"
+            pod, ns, "8092", "8091", "{", "}"
         ))
 
     pod = get_pod_name_by_prefix("couchmart", ns)
     if pod != "undefined":
         execute_background_command(cmd.format(
-            pod, ns, "8080", "8080"
+            pod, ns, "8080", "8080", "{", "}"
         ))
 
 
@@ -404,9 +404,18 @@ if __name__ == "__main__":
                             " http://localhost:8091/settings/replications/{2}%2Fcouchmart%2Fcouchmart"
                             " -d pauseRequested=true".format(kvpod, ns, xdcr_uuid))
 
-            execute_command("kubectl exec -i {0} -n {1} -- bash -c \"wget http://bit.ly/cbsummitdata1M -O /tmp/couchmart_1M_formatted_keys.json\"".format(
-                kvpod, ns
-            ))
+            #execute_command("kubectl exec -i {0} -n {1} -- bash -c \"wget http://bit.ly/cbsummitdata1M -O /tmp/couchmart_1M_formatted_keys.json\"".format(
+            #    kvpod, ns
+            #))
+            execute_command(
+                "kubectl cp resources/resources/couchmart_1M_formatted_keys.json.gz {0}/{1}:/tmp/couchmart_1M_formatted_keys.json.gz".format(
+                    ns, kvpod
+                ))
+
+            execute_command(
+                "kubectl exec -i {0} -n {1} -- gunzip /tmp/couchmart_1M_formatted_keys.json.gz".format(
+                    kvpod, ns
+                ))
 
             execute_command("kubectl exec -i {0} -n {1} -- cbimport json -c couchbase://localhost "
                             "-b couchmart -u Administrator -p password -f list "
